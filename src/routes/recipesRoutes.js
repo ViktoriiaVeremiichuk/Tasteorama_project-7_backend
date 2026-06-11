@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getFavoriteRecipes } from "../controllers/recipesController.js";
-import { authenticate } from "../middlewares/authenticate.js";
+import { authenticate } from "../middleware/authenticate.js";
 
 const router = Router();
 
