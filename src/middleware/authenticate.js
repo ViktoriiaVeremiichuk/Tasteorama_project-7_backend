@@ -1,4 +1,4 @@
-import createHttpError from "http-error";
+import createHttpError from "http-errors";
 
 export const authenticate = async (req, res, next) => {
   try {
@@ -12,7 +12,7 @@ export const authenticate = async (req, res, next) => {
     if (new Date() > session.accessTokenValidUntil)
       throw createHttpError(401, "Access token expired");
 
-    const user = await User.findByid(session.userId);
+    const user = await User.findById(session.userId);
     if (!user) throw createHttpError(401);
 
     req.user = user;
