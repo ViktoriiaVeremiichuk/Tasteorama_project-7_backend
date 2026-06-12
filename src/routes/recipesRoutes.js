@@ -4,6 +4,7 @@ import { authenticate } from "../middleware/authenticate.js";
 
 const router = Router();
 
+
 router.get("/favorite", authenticate,  celebrate(getFavoriteSchema), 
   getFavoriteRecipes);
 
