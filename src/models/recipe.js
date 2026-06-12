@@ -24,8 +24,7 @@ const recipeSchema = new Schema(
       trim: true,
     },
     category: {
-      type: Schema.Types.ObjectId,
-      ref: "Category",
+      type: String,
       required: true,
     },
     owner: {
