@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { celebrate } from "celebrate";
 import {
   registerUserSchema,
   loginUserSchema,
@@ -14,8 +13,8 @@ import {
 
 const router = Router();
 
-router.post("/register", celebrate(registerUserSchema), registerUser);
-router.post("/login", celebrate(loginUserSchema), loginUser);
+router.post("/register", registerUserSchema, registerUser);
+router.post("/login", loginUserSchema, loginUser);
 router.post("/refresh", refreshUserSession);
 router.post("/logout", logout);
 
