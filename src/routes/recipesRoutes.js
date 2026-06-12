@@ -5,7 +5,6 @@ import { authenticate } from "../middleware/authenticate.js";
 const router = Router();
 
 
-router.get("/favorite", authenticate, celebrate(getFavoriteRecipes), 
-  getFavoriteRecipes);
+router.get("/favorite", authenticate, getFavoriteRecipes);
 
 export default router;

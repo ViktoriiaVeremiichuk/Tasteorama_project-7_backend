@@ -4,6 +4,7 @@ export const getFavoriteRecipes = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
+
     const userWithFavorites = await User.findById(userId).populate("favorites");
 
     if (!userWithFavorites) {
