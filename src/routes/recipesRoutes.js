@@ -1,7 +1,8 @@
-import { Router } from 'express';
+import { Router } from "express";
+import { searchRecipes } from "../controllers/recipesController.js";
 
-const router = Router();
+const recipesRouter = Router();
 
+recipesRouter.get("/search", searchRecipes);
 
-
-export default router;
+export default recipesRouter;
