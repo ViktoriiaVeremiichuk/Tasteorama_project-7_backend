@@ -21,6 +21,7 @@
   "homepage": "https://github.com/ViktoriiaVeremiichuk/Tasteorama_project-7_backend#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "celebrate": "^15.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -29,6 +30,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.7.0",
     "nodemon": "^3.1.14",
-    "pino-http": "^11.0.0"
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.3"
   }
 }

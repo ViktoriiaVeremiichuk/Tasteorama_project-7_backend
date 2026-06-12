@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import fs from "node:fs/promises";
-import Handlebars from "handlebars";
 import createHttpError from "http-errors";
-import { Session } from "//";
+import { User } from "../models/user.js";
+import { Session } from "../models/session.js";
+import { createSession, setSessionCookies } from "../services/auth.js";
+// import { sendEmail } from "../utils/sendMail.js";
 
 //NOTE -  auth/register
 export const registerUser = async (req, res, next) => {
@@ -37,13 +37,16 @@ export const loginUser = async (req, res, next) => {
     const session = await createSession(user._id);
     setSessionCookies(res, session);
 
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw createHttpError(401, "Invalid credentials");
+
     res.status(200).json(user);
   } catch (err) {
     next(err);
   }
 };
 
-//NOTE - /auth/request-reset-email
+//NOTE - /auth/logout
 export const logout = async (req, res, next) => {
   try {
     const { sessionId } = req.cookie;
