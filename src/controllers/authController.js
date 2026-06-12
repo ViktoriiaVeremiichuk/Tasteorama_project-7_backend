@@ -11,7 +11,6 @@ export const registerUser = async (req, res, next) => {
     const { email, password } = req.body;
 
     const existing = await User.findOne({ email });
-
     if (existing) throw createHttpError(400, "Email in use");
 
     const hashed = await bcrypt.hash(password, 10);
@@ -33,12 +32,12 @@ export const loginUser = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) throw createHttpError(401, "Invalid credentials");
 
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw createHttpError(401, "Invalid credentials");
+
     await Session.deleteMany({ userId: user._id });
     const session = await createSession(user._id);
     setSessionCookies(res, session);
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw createHttpError(401, "Invalid credentials");
 
     res.status(200).json(user);
   } catch (err) {
@@ -49,7 +48,7 @@ export const loginUser = async (req, res, next) => {
 //NOTE - /auth/logout
 export const logout = async (req, res, next) => {
   try {
-    const { sessionId } = req.cookie;
+    const { sessionId } = req.cookies;
     if (sessionId) await Session.findByIdAndDelete(sessionId);
 
     res.clearCookie("sessionId");

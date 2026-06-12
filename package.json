@@ -21,7 +21,10 @@
   "homepage": "https://github.com/ViktoriiaVeremiichuk/Tasteorama_project-7_backend#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+<<<<<<< HEAD
     "celebrate": "^15.0.3",
+=======
+>>>>>>> 69a170017824a97259d3ebf7ae6ea50f0a403858
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
