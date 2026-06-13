@@ -5,11 +5,11 @@ import {
   getOwnRecipes,
 } from "../controllers/recipesController.js";
 import { authenticate } from "../middleware/authenticate.js";
-import { getOwnRecipesSchema } from "../validations/recipesValidation.js";
+import { recipeQuerySchema } from "../validations/recipesValidation.js";
 
 const router = Router();
 
-router.get("/own", authenticate, celebrate(getOwnRecipesSchema), getOwnRecipes);
+router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
 router.post("/favorites/:recipeId", authenticate, addFavoriteRecipe);
 
 export default router;
