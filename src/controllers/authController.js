@@ -8,13 +8,13 @@ import { createSession, setSessionCookies } from "../services/auth.js";
 //NOTE -  auth/register
 export const registerUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
     const existing = await User.findOne({ email });
     if (existing) throw createHttpError(400, "Email in use");
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, password: hashed });
+    const user = await User.create({ email, password: hashed, name });
     const session = await createSession(user._id);
     setSessionCookies(res, session);
 
