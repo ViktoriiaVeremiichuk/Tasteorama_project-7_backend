@@ -5,11 +5,14 @@ import { upload } from "../middleware/upload.js";
 import  { celebrate } from "celebrate";
 
 import {
-  addFavoriteRecipe,
-  createRecipe,
+    addFavoriteRecipe,
+    createRecipe,
+    getRecipeByIdController,
+    getOwnRecipes,
 } from "../controllers/recipesController.js";
 
 import { recipeQuerySchema } from "../validation/recipesValidation.js";
+import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
 
 const router = Router();
 
@@ -20,7 +23,8 @@ router.post(
   createRecipe
 );
 
-
-router.post("/favorites/:recipeId", authenticate, addFavoriteRecipe);
+router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
+router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
+router.post("/favorites/:recipeId", isValidRecipeId, authenticate, addFavoriteRecipe);
 
 export default router;
