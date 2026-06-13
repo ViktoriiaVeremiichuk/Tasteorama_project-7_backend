@@ -1,18 +1,65 @@
-import { User } from "../models/user.js"; 
+import mongoose from "mongoose";
+import createHttpError from "http-errors";
+import { Recipe } from "../models/recipe.js";
+import { User } from "../models/user.js";
+import "../models/ingredient.js";
 
-export const getFavoriteRecipes = async (req, res, next) => {
+export const addFavoriteRecipe = async (req, res, next) => {
   try {
-    const userId = req.user._id;
+    const { recipeId } = req.params;
 
-
-    const userWithFavorites = await User.findById(userId).populate("favorites");
-
-    if (!userWithFavorites) {
-      return res.status(404).json({ message: "User not found" });
+    if (!mongoose.isValidObjectId(recipeId)) {
+      throw createHttpError(400, "Invalid recipe ID format");
     }
 
-    return res.status(200).json(userWithFavorites.favorites);
+    const recipe = await Recipe.exists({ _id: recipeId });
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          favorites: recipeId,
+        },
+      },
+      { new: true },
+    );
+
+    res.status(200).json({ favorites: user.favorites });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getOwnRecipes = async (req, res, next) => {
+  try {
+    const { page = 1, perPage = 12 } = req.query;
+
+    const filter = { owner: req.user._id };
+    const skip = (page - 1) * perPage;
+
+    const [recipes, totalItems] = await Promise.all([
+      Recipe.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(perPage)
+        .populate("ingredients.id", "name"),
+      Recipe.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / perPage);
+
+    res.status(200).json({
+      page: Number(page),
+      perPage: Number(perPage),
+      totalItems,
+      totalPages,
+      recipes,
+    });
+  } catch (err) {
+    next(err);
   }
 };
