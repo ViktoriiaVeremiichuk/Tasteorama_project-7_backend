@@ -1,26 +1,34 @@
+import mongoose from "mongoose";
+import createHttpError from "http-errors";
 import { Recipe } from "../models/recipe.js";
+import { User } from "../models/user.js";
 
-export const addToFavoritesController = async (
-  req,
-  res,
-) => {
-  const { recipeId } = req.params;
+export const addFavoriteRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
 
-  const recipe = await Recipe.findById(recipeId);
+    if (!mongoose.isValidObjectId(recipeId)) {
+      throw createHttpError(400, "Invalid recipe ID format");
+    }
 
-  if (!recipe) {
-    return res.status(404).json({
-      message: "Recipe not found",
-    });
+    const recipe = await Recipe.exists({ _id: recipeId });
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          favorites: recipeId,
+        },
+      },
+      { new: true },
+    );
+
+    res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
   }
-
-  // TODO:
-  // отримати користувача після реалізації authenticate middleware
-  // перевірити чи рецепт вже є в favorites
-  // додати рецепт до favorites
-  // зберегти користувача
-
-  res.status(200).json({
-    message: "Controller stub is ready",
-  });
 };
