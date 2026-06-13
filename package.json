@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/ViktoriiaVeremiichuk/Tasteorama_project-7_backend#readme",
   "dependencies": {
+    "celebrate": "^15.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

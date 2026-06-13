@@ -6,6 +6,7 @@ import { connectMongoDB } from "./db/connectMongoDB.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { logger } from "./middleware/logger.js";
+import { errors } from "celebrate";
 import authRoutes from "./routes/authRoutes.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
 import ingredientsRoutes from "./routes/ingredientsRoutes.js";
@@ -30,6 +31,7 @@ app.use("/api/ingredients", ingredientsRoutes);
 app.use("/api/recipes", recipesRoutes);
 app.use("/api/users", usersRoutes);
 
+app.use(errors());
 app.use(notFoundHandler);
 app.use(errorHandler);
 

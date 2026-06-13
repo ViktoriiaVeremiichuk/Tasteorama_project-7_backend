@@ -10,7 +10,7 @@ const userSchema = new Schema(
       default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
     },
     email: { type: String, unique: true, required: true, trim: true, lowercase: true },
-    password: { type: String, required: true, minlength: 8, select: false },
+    password: { type: String, required: true, minlength: 8 },
     favorites: [{ type: Schema.Types.ObjectId, ref: "Recipe" }],
   },
   { timestamps: true },
