@@ -144,3 +144,5 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# pullrequests: https://github.com/ViktoriiaVeremiichuk/Tasteorama_project-7_backend/pull/7
