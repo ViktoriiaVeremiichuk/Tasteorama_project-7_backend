@@ -1,22 +1,34 @@
 import { Recipe } from "../models/recipe.js";
 
-export const searchRecipesByTitle = async ({ search, page, limit }) => {
-  const searchQuery = search.trim();
-
+export const searchRecipesByFilters = async ({
+  title,
+  category,
+  ingredient,
+  page,
+  limit,
+}) => {
   const filter = {};
 
-  if (searchQuery) {
-    filter.title = { $regex: searchQuery, $options: "i" };
+  const searchTitle = title.trim();
+
+  if (searchTitle) {
+    filter.title = { $regex: searchTitle, $options: "i" };
+  }
+
+  if (category) {
+    filter.category = category;
+  }
+
+  if (ingredient) {
+    filter["ingredients.id"] = ingredient;
   }
 
   const skip = (page - 1) * limit;
 
-  const recipes = await Recipe.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
-
-  const total = await Recipe.countDocuments(filter);
+  const [recipes, total] = await Promise.all([
+    Recipe.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }),
+    Recipe.countDocuments(filter),
+  ]);
 
   return {
     recipes,
