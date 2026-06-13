@@ -7,7 +7,7 @@ import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { logger } from "./middleware/logger.js";
 import { errors } from "celebrate";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
 import ingredientsRoutes from "./routes/ingredientsRoutes.js";
@@ -22,6 +22,7 @@ app.use(express.json());
 app.use(
   cors({
     methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
   }),
 );
 app.use(helmet());

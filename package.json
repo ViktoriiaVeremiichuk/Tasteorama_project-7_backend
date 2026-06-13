@@ -29,6 +29,7 @@
     "handlebars": "^4.7.9",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
+    "http-errors": "^2.0.1",
     "mongoose": "^9.7.0",
     "nodemon": "^3.1.14",
     "pino-http": "^11.0.0",
