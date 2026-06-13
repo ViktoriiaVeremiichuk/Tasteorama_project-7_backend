@@ -6,7 +6,7 @@ export const getCategories = async (req, res, next) => {
 
         res.status(200).json({
             status: 200,
-            date: categories, 
+            data: categories, 
         });
     } catch (error) {
         next(error);
