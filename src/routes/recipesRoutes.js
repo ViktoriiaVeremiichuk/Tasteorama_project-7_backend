@@ -6,17 +6,19 @@ import {
   getRecipeByIdController,
   deleteOwnRecipe,
   getOwnRecipes,
+  getFavoriteRecipes,
 } from "../controllers/recipesController.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
-import { recipeIdParamSchema } from "../validation/recipesValidation.js";
-import { recipeQuerySchema } from "../validation/recipesOwnValidation.js";
+
+import { recipeIdParamSchema, recipeQuerySchema } from "../validation/recipesValidation.js";
+
 
 const router = Router();
 
 router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
 
-router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
+router.get("/favorite", authenticate, getFavoriteRecipes);
 
 router.post(
   "/favorites/:recipeId",
@@ -38,5 +40,8 @@ router.delete(
   authenticate,
   deleteOwnRecipe,
 );
+
+
+router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
 
 export default router;
