@@ -114,3 +114,21 @@ export const getOwnRecipes = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const getFavoriteRecipes = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+
+    const userWithFavorites = await User.findById(userId).populate("favorites");
+
+   if (!userWithFavorites) {
+  throw createHttpError(404, "User not found");
+}
+
+    return res.status(200).json(userWithFavorites.favorites);
+  } catch (error) {
+    next(error);
+  }
+};
