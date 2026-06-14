@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-
 import {
   addFavoriteRecipe,
   removeFavoriteRecipe,
   getRecipeByIdController,
+  deleteOwnRecipe,
   getOwnRecipes,
   getFavoriteRecipes,
 } from "../controllers/recipesController.js";
-
 import { authenticate } from "../middleware/authenticate.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
+
 import { recipeIdParamSchema, recipeQuerySchema } from "../validation/recipesValidation.js";
 
 
@@ -33,6 +33,14 @@ router.delete(
   celebrate(recipeIdParamSchema),
   removeFavoriteRecipe,
 );
+
+router.delete(
+  "/:recipeId",
+  isValidRecipeId,
+  authenticate,
+  deleteOwnRecipe,
+);
+
 
 router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
 

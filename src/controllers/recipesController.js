@@ -115,6 +115,32 @@ export const getOwnRecipes = async (req, res, next) => {
   }
 };
 
+export const deleteOwnRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId);
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    if (!recipe.owner.equals(req.user._id)) {
+      throw createHttpError(403, "Forbidden");
+    }
+
+    await User.updateMany(
+      { favorites: recipeId },
+      { $pull: { favorites: recipeId } },
+    );
+
+    await Recipe.findByIdAndDelete(recipeId);
+
+    res.status(200).json(recipe);
+  } catch (err) {
+    next(err);  }
+};
+
 
 export const getFavoriteRecipes = async (req, res, next) => {
   try {
