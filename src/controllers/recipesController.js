@@ -1,10 +1,10 @@
-import { User } from "../models/user.js";
+import mongoose from "mongoose";
 import createHttpError from "http-errors";
+import { User } from "../models/user.js";
 import { Recipe } from "../models/recipe.js";
 import { searchRecipesByFilters } from "../services/recipesServices.js";
 import "../models/ingredient.js";
 import "../models/category.js";
-
 
 export const searchRecipes = async (req, res, next) => {
   try {
@@ -69,6 +69,36 @@ export const addFavoriteRecipe = async (req, res, next) => {
   }
 };
 
+export const removeFavoriteRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    if (!mongoose.isValidObjectId(recipeId)) {
+      throw createHttpError(400, "Invalid recipe ID format");
+    }
+
+    const recipe = await Recipe.exists({ _id: recipeId });
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $pull: {
+          favorites: recipeId,
+        },
+      },
+      { new: true },
+    );
+
+    res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getRecipeByIdController = async (req, res, next) => {
   try {
     const { recipeId } = req.params;
@@ -118,5 +148,22 @@ export const getOwnRecipes = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+
+export const getFavoriteRecipes = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    const userWithFavorites = await User.findById(userId).populate("favorites");
+
+    if (!userWithFavorites) {
+      throw createHttpError(404, "User not found");
+    }
+
+    return res.status(200).json(userWithFavorites.favorites);
+  } catch (error) {
+    next(error);
   }
 };

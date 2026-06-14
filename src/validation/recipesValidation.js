@@ -1,6 +1,11 @@
-import { Joi, Segments } from "celebrate";
+import { Joi, Segments } from 'celebrate';
 
-//Валідація query-параметрів для GET /api/recipes/own.
+export const recipeIdParamSchema = {
+  [Segments.PARAMS]: Joi.object({
+    recipeId: Joi.string().required(),
+  }),
+};
+
 export const recipeQuerySchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1).default(1),
