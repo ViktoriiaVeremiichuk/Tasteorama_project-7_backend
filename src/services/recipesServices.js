@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Recipe } from "../models/recipe.js";
 
 export const searchRecipesByFilters = async ({
@@ -20,7 +21,11 @@ export const searchRecipesByFilters = async ({
   }
 
   if (ingredient) {
-    filter["ingredients.id"] = ingredient;
+    if (!mongoose.Types.ObjectId.isValid(ingredient)) {
+      return { recipes: [], total: 0, page, limit, totalPages: 0 };
+    }
+
+    filter["ingredients.id"] = new mongoose.Types.ObjectId(ingredient);
   }
 
   const skip = (page - 1) * limit;

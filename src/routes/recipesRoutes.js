@@ -11,11 +11,14 @@ import {
 
 import { authenticate } from "../middleware/authenticate.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
-import { recipeQuerySchema } from "../validations/recipesValidation.js";
+import {
+  recipeQuerySchema,
+  recipeSearchQuerySchema,
+} from "../validations/recipesValidation.js";
 
 const recipesRouter = Router();
 
-recipesRouter.get("/search", searchRecipes);
+recipesRouter.get("/search", celebrate(recipeSearchQuerySchema), searchRecipes);
 recipesRouter.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
 recipesRouter.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
 recipesRouter.post(
