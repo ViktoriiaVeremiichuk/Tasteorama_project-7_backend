@@ -1,8 +1,9 @@
+import mongoose from "mongoose";
+import createHttpError from "http-errors";
 import { User } from "../models/user.js";
 import { Recipe } from "../models/recipe.js";
 import "../models/ingredient.js";
 import "../models/category.js";
-
 
 export const addFavoriteRecipe = async (req, res, next) => {
   try {
@@ -51,6 +52,9 @@ export const getRecipeByIdController = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
 export const getOwnRecipes = async (req, res, next) => {
   try {
     const { page = 1, perPage = 12 } = req.query;
@@ -76,6 +80,33 @@ export const getOwnRecipes = async (req, res, next) => {
       totalPages,
       recipes,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteOwnRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId);
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    if (!recipe.owner.equals(req.user._id)) {
+      throw createHttpError(403, "Forbidden");
+    }
+
+    await User.updateMany(
+      { favorites: recipeId },
+      { $pull: { favorites: recipeId } },
+    );
+
+    await Recipe.findByIdAndDelete(recipeId);
+
+    res.status(200).json(recipe);
   } catch (err) {
     next(err);
   }
