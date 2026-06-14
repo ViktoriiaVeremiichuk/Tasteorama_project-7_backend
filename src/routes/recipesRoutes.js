@@ -8,40 +8,105 @@ import {
   getOwnRecipes,
   getFavoriteRecipes,
 } from "../controllers/recipesController.js";
+
 import { authenticate } from "../middleware/authenticate.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
 
-import { recipeIdParamSchema, recipeQuerySchema } from "../validation/recipesValidation.js";
-
+import {
+  recipeIdParamSchema,
+  recipeQuerySchema,
+} from "../validation/recipesValidation.js";
 
 const router = Router();
 
-router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
+router.get(
+  "/own",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Get own recipes'
+    #swagger.description = 'Returns recipes created by current user'
 
-router.get("/favorite", authenticate, getFavoriteRecipes);
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  authenticate,
+  celebrate(recipeQuerySchema),
+  getOwnRecipes
+);
+
+router.get(
+  "/favorite",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Get favorite recipes'
+    #swagger.description = 'Returns favorite recipes of current user'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  authenticate,
+  getFavoriteRecipes
+);
 
 router.post(
   "/favorites/:recipeId",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Add recipe to favorites'
+    #swagger.description = 'Adds recipe to user favorites'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
   isValidRecipeId,
   authenticate,
-  addFavoriteRecipe,
+  addFavoriteRecipe
 );
 
 router.delete(
   "/favorites/:recipeId",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Remove recipe from favorites'
+    #swagger.description = 'Removes recipe from user favorites'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
   authenticate,
   celebrate(recipeIdParamSchema),
-  removeFavoriteRecipe,
+  removeFavoriteRecipe
 );
 
 router.delete(
   "/:recipeId",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Delete own recipe'
+    #swagger.description = 'Deletes recipe created by current user'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
   isValidRecipeId,
   authenticate,
-  deleteOwnRecipe,
+  deleteOwnRecipe
 );
 
-
-router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
+router.get(
+  "/:recipeId",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Get recipe by id'
+    #swagger.description = 'Returns recipe details by id'
+  */
+  isValidRecipeId,
+  getRecipeByIdController
+);
 
 export default router;
