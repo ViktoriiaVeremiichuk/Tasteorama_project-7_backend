@@ -1,9 +1,39 @@
 import mongoose from "mongoose";
 import createHttpError from "http-errors";
-import { Recipe } from "../models/recipe.js";
 import { User } from "../models/user.js";
+import { Recipe } from "../models/recipe.js";
+import "../models/ingredient.js";
+import "../models/category.js";
 
 export const addFavoriteRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.exists({ _id: recipeId });
+
+    if (!recipe) {
+      return res.status(404).json({
+        message: "Recipe not found",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          favorites: recipeId,
+        },
+      },
+      { new: true },
+    );
+
+    res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removeFavoriteRecipe = async (req, res, next) => {
   try {
     const { recipeId } = req.params;
 
@@ -20,7 +50,7 @@ export const addFavoriteRecipe = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       {
-        $addToSet: {
+        $pull: {
           favorites: recipeId,
         },
       },
@@ -28,6 +58,102 @@ export const addFavoriteRecipe = async (req, res, next) => {
     );
 
     res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRecipeByIdController = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId)
+      .populate("category")
+      .populate("ingredients.id");
+
+    if (!recipe) {
+      return res.status(404).json({
+        message: "Recipe not found",
+      });
+    }
+
+    res.status(200).json({
+      data: recipe,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOwnRecipes = async (req, res, next) => {
+  try {
+    const { page = 1, perPage = 12 } = req.query;
+
+    const filter = { owner: req.user._id };
+    const skip = (page - 1) * perPage;
+
+    const [recipes, totalItems] = await Promise.all([
+      Recipe.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(perPage)
+        .populate("ingredients.id", "name"),
+      Recipe.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / perPage);
+
+    res.status(200).json({
+      page: Number(page),
+      perPage: Number(perPage),
+      totalItems,
+      totalPages,
+      recipes,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteOwnRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId);
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    if (!recipe.owner.equals(req.user._id)) {
+      throw createHttpError(403, "Forbidden");
+    }
+
+    await User.updateMany(
+      { favorites: recipeId },
+      { $pull: { favorites: recipeId } },
+    );
+
+    await Recipe.findByIdAndDelete(recipeId);
+
+    res.status(200).json(recipe);
+  } catch (err) {
+    next(err);  }
+};
+
+
+export const getFavoriteRecipes = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+
+    const userWithFavorites = await User.findById(userId).populate("favorites");
+
+   if (!userWithFavorites) {
+  throw createHttpError(404, "User not found");
+}
+
+    return res.status(200).json(userWithFavorites.favorites);
   } catch (error) {
     next(error);
   }

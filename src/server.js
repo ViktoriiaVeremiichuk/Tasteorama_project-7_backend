@@ -7,7 +7,7 @@ import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { logger } from "./middleware/logger.js";
 import { errors } from "celebrate";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
 import ingredientsRoutes from "./routes/ingredientsRoutes.js";
@@ -16,12 +16,28 @@ import usersRoutes from "./routes/usersRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+//Вирішення проблем з CORS
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3001",
+  "http://localhost:3000",
+].filter(Boolean);
 
 app.use(logger);
 app.use(express.json());
 app.use(
   cors({
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    //Вирішення проблем з CORS
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin ?? allowedOrigins[0]);
+        return;
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
   }),
 );
 app.use(helmet());
