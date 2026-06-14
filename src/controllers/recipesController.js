@@ -1,10 +1,39 @@
 import mongoose from "mongoose";
 import createHttpError from "http-errors";
-import { Recipe } from "../models/recipe.js";
 import { User } from "../models/user.js";
+import { Recipe } from "../models/recipe.js";
 import "../models/ingredient.js";
+import "../models/category.js";
 
 export const addFavoriteRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.exists({ _id: recipeId });
+
+    if (!recipe) {
+      return res.status(404).json({
+        message: "Recipe not found",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          favorites: recipeId,
+        },
+      },
+      { new: true },
+    );
+
+    res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removeFavoriteRecipe = async (req, res, next) => {
   try {
     const { recipeId } = req.params;
 
@@ -21,7 +50,7 @@ export const addFavoriteRecipe = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       {
-        $addToSet: {
+        $pull: {
           favorites: recipeId,
         },
       },
@@ -29,6 +58,28 @@ export const addFavoriteRecipe = async (req, res, next) => {
     );
 
     res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRecipeByIdController = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId)
+      .populate("category")
+      .populate("ingredients.id");
+
+    if (!recipe) {
+      return res.status(404).json({
+        message: "Recipe not found",
+      });
+    }
+
+    res.status(200).json({
+      data: recipe,
+    });
   } catch (error) {
     next(error);
   }
@@ -72,9 +123,9 @@ export const getFavoriteRecipes = async (req, res, next) => {
 
     const userWithFavorites = await User.findById(userId).populate("favorites");
 
-    if (!userWithFavorites) {
-      return res.status(404).json({ message: "User not found" });
-    }
+   if (!userWithFavorites) {
+  throw createHttpError(404, "User not found");
+}
 
     return res.status(200).json(userWithFavorites.favorites);
   } catch (error) {
