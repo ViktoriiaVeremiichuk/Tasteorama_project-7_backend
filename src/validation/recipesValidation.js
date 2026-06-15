@@ -13,7 +13,7 @@ export const recipeQuerySchema = {
   }),
 };
 
-export const createRecipeSchema = { [Segments.QUERY]:Joi.object({
+export const createRecipeSchema = { [Segments.BODY]:Joi.object({
     title: Joi.string().required(),
     description: Joi.string().allow(""),
     category: Joi.string().required(),
