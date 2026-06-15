@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Local server"
+      "url": "https://tasteorama-project-7-backend.onrender.com",
+      "description": "Production server"
     }
   ],
   "paths": {
