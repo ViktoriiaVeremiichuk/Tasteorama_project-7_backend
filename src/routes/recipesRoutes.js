@@ -27,14 +27,31 @@ const router = Router();
 
 router.post(
   "/",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Create recipe'
+    #swagger.description = 'Creates a new recipe'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
   authenticate,
   upload.single("thumb"),
   celebrate(createRecipeSchema),
   createRecipe
 );
 
-router.get("/search", celebrate(recipeSearchQuerySchema), searchRecipes);
-
+router.get(
+  "/search",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Search recipes'
+    #swagger.description = 'Search recipes by filters'
+  */
+  celebrate(recipeSearchQuerySchema),
+  searchRecipes
+);
 
 router.get(
   "/own",
@@ -67,12 +84,7 @@ router.get(
   getFavoriteRecipes
 );
 
-
-
-
-
 router.post(
-
   "/favorites/:recipeId",
   /*
     #swagger.tags = ['Recipes']

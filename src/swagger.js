@@ -10,12 +10,12 @@ const doc = {
     description: "Tasteorama backend API",
     version: "1.0.0",
   },
-  servers: [
-    {
-      url: "http://localhost:3000",
-      description: "Local server",
-    },
-  ],
+ servers: [
+  {
+    url: "https://tasteorama-project-7-backend.onrender.com",
+    description: "Production server",
+  },
+],
   components: {
     securitySchemes: {
       bearerAuth: {
