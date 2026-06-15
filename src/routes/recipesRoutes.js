@@ -38,6 +38,7 @@ router.post(
   */
   authenticate,
   upload.single("thumb"),
+  celebrate(createRecipeSchema),
   createRecipe
 );
 
@@ -58,6 +59,43 @@ router.get(
     #swagger.tags = ['Recipes']
     #swagger.summary = 'Get own recipes'
     #swagger.description = 'Returns recipes created by current user'
+router.get("/search", celebrate(recipeSearchQuerySchema), searchRecipes);
+
+
+router.get(
+  "/own",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Get own recipes'
+    #swagger.description = 'Returns recipes created by current user'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  authenticate,
+  celebrate(recipeQuerySchema),
+  getOwnRecipes
+);
+
+router.get(
+  "/favorite",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Get favorite recipes'
+    #swagger.description = 'Returns favorite recipes of current user'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  authenticate,
+  getFavoriteRecipes
+);
+
+
+
+
 
     #swagger.security = [{
       "bearerAuth": []
