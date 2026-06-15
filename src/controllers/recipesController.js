@@ -1,5 +1,4 @@
 import { Readable } from "stream";
-import Joi from "joi";
 
 import mongoose from "mongoose";
 import createHttpError from "http-errors";
@@ -8,27 +7,9 @@ import { User } from "../models/user.js";
 import { Recipe } from "../models/recipe.js";
 import "../models/ingredient.js";
 import "../models/category.js";
-
+import { createRecipeSchema } from "../validation/recipesValidation.js";
 
 import cloudinary from "../utils/cloudinary.js";
-
-const schema = Joi.object({
-  title: Joi.string().required(),
-  description: Joi.string().allow(""),
-  category: Joi.string().required(),
-  instructions: Joi.string().required(),
-  time: Joi.number().required(),
-  calories: Joi.number().optional(),
-
-  ingredients: Joi.array()
-    .items(
-      Joi.object({
-        id: Joi.string().required(),
-        measure: Joi.string().required(),
-      })
-    )
-    .required(),
-});
 
 const uploadToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
@@ -64,7 +45,7 @@ export const createRecipe = async (req, res, next) => {
         ? JSON.parse(ingredients)
         : ingredients;
 
-    const { error } = schema.validate({
+    const { error } = createRecipeSchema.validate({
       title,
       description,
       category,
@@ -135,6 +116,36 @@ export const addFavoriteRecipe = async (req, res, next) => {
   }
 };
 
+export const removeFavoriteRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    if (!mongoose.isValidObjectId(recipeId)) {
+      throw createHttpError(400, "Invalid recipe ID format");
+    }
+
+    const recipe = await Recipe.exists({ _id: recipeId });
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $pull: {
+          favorites: recipeId,
+        },
+      },
+      { new: true },
+    );
+
+    res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getRecipeByIdController = async (req, res, next) => {
   try {
     const { recipeId } = req.params;
@@ -183,5 +194,49 @@ export const getOwnRecipes = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+export const deleteOwnRecipe = async (req, res, next) => {
+  try {
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId);
+
+    if (!recipe) {
+      throw createHttpError(404, "Recipe not found");
+    }
+
+    if (!recipe.owner.equals(req.user._id)) {
+      throw createHttpError(403, "Forbidden");
+    }
+
+    await User.updateMany(
+      { favorites: recipeId },
+      { $pull: { favorites: recipeId } },
+    );
+
+    await Recipe.findByIdAndDelete(recipeId);
+
+    res.status(200).json(recipe);
+  } catch (err) {
+    next(err);  }
+};
+
+
+export const getFavoriteRecipes = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+
+    const userWithFavorites = await User.findById(userId).populate("favorites");
+
+   if (!userWithFavorites) {
+  throw createHttpError(404, "User not found");
+}
+
+    return res.status(200).json(userWithFavorites.favorites);
+  } catch (error) {
+    next(error);
   }
 };

@@ -1,18 +1,25 @@
 import { Router } from "express";
+import { celebrate } from "celebrate";
+
+import {
+  createRecipe,
+  addFavoriteRecipe,
+  removeFavoriteRecipe,
+  getRecipeByIdController,
+  deleteOwnRecipe,
+  getOwnRecipes,
+  getFavoriteRecipes,
+} from "../controllers/recipesController.js";
 
 import { authenticate } from "../middleware/authenticate.js";
 import { upload } from "../middleware/upload.js";
-import  { celebrate } from "celebrate";
+import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
 
 import {
-    addFavoriteRecipe,
-    createRecipe,
-    getRecipeByIdController,
-    getOwnRecipes,
-} from "../controllers/recipesController.js";
-
-import { recipeQuerySchema } from "../validation/recipesValidation.js";
-import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
+  recipeIdParamSchema,
+  recipeQuerySchema,
+  createRecipeSchema,
+} from "../validation/recipesValidation.js";
 
 const router = Router();
 
@@ -24,7 +31,31 @@ router.post(
 );
 
 router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
+
+router.get("/favorite", authenticate, getFavoriteRecipes);
+
+router.post(
+  "/favorites/:recipeId",
+  isValidRecipeId,
+  authenticate,
+  addFavoriteRecipe,
+);
+
+router.delete(
+  "/favorites/:recipeId",
+  authenticate,
+  celebrate(recipeIdParamSchema),
+  removeFavoriteRecipe,
+);
+
+router.delete(
+  "/:recipeId",
+  isValidRecipeId,
+  authenticate,
+  deleteOwnRecipe,
+);
+
+
 router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
-router.post("/favorites/:recipeId", isValidRecipeId, authenticate, addFavoriteRecipe);
 
 export default router;
