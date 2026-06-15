@@ -16,12 +16,27 @@ import usersRoutes from "./routes/usersRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+//Вирішення проблем з CORS
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3001",
+  "http://localhost:3000",
+].filter(Boolean);
 
 app.use(logger);
 app.use(express.json());
 app.use(
   cors({
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    //Вирішення проблем з CORS
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin ?? allowedOrigins[0]);
+        return;
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );
