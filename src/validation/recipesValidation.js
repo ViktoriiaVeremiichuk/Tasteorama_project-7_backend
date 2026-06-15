@@ -13,6 +13,23 @@ export const recipeQuerySchema = {
   }),
 };
 
+export const createRecipeSchema = Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string().allow(""),
+    category: Joi.string().required(),
+    instructions: Joi.string().required(),
+    time: Joi.number().required(),
+    calories: Joi.number().optional(),
+  
+    ingredients: Joi.array()
+      .items(
+        Joi.object({
+          id: Joi.string().required(),
+          measure: Joi.string().required(),
+        })
+      )
+      .required(),
+  });
 export const recipeSearchQuerySchema = {
   [Segments.QUERY]: Joi.object({
     title: Joi.string().trim().allow("").optional(),

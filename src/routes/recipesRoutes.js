@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
+
 import {
+  createRecipe,
   searchRecipes,
   addFavoriteRecipe,
   removeFavoriteRecipe,
@@ -9,16 +11,26 @@ import {
   getOwnRecipes,
   getFavoriteRecipes,
 } from "../controllers/recipesController.js";
+
 import { authenticate } from "../middleware/authenticate.js";
+import { upload } from "../middleware/upload.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
 
 import {
   recipeIdParamSchema,
   recipeQuerySchema,
+  createRecipeSchema,
   recipeSearchQuerySchema,
 } from "../validation/recipesValidation.js";
 
 const router = Router();
+
+router.post(
+  "/",
+  authenticate,
+  upload.single("thumb"),
+  createRecipe
+);
 
 router.get("/search", celebrate(recipeSearchQuerySchema), searchRecipes);
 router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
@@ -43,4 +55,3 @@ router.delete(
 router.get("/:recipeId", isValidRecipeId, getRecipeByIdController);
 
 export default router;
-
