@@ -3,6 +3,14 @@ import { getIngredientsController } from "../controllers/ingredientsController.j
 
 const router = Router();
 
-router.get("/", getIngredientsController);
+router.get(
+  "/",
+  /*
+    #swagger.tags = ['Ingredients']
+    #swagger.summary = 'Get all ingredients'
+    #swagger.description = 'Returns list of ingredients'
+  */
+  getIngredientsController
+);
 
 export default router;

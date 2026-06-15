@@ -13,6 +13,8 @@ import categoriesRoutes from "./routes/categoriesRoutes.js";
 import ingredientsRoutes from "./routes/ingredientsRoutes.js";
 import recipesRoutes from "./routes/recipesRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerFile from "./swagger-output.json" with { type: "json" };
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,6 +50,11 @@ app.use("/api/categories", categoriesRoutes);
 app.use("/api/ingredients", ingredientsRoutes);
 app.use("/api/recipes", recipesRoutes);
 app.use("/api/users", usersRoutes);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerFile),
+);
 
 app.use(errors());
 app.use(notFoundHandler);

@@ -13,9 +13,54 @@ import {
 
 const router = Router();
 
-router.post("/register", registerUserSchema, registerUser);
-router.post("/login", loginUserSchema, loginUser);
-router.post("/refresh", refreshUserSession);
-router.post("/logout", logout);
+router.post(
+  "/register",
+  /*
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Register user'
+    #swagger.description = 'Endpoint for user registration'
+  */
+  registerUserSchema,
+  registerUser
+);
+
+router.post(
+  "/login",
+  /*
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Login user'
+    #swagger.description = 'Endpoint for user login'
+  */
+  loginUserSchema,
+  loginUser
+);
+
+router.post(
+  "/refresh",
+  /*
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Refresh session'
+    #swagger.description = 'Refresh access token'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  refreshUserSession
+);
+
+router.post(
+  "/logout",
+  /*
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Logout user'
+    #swagger.description = 'Logout current user'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  logout
+);
 
 export default router;
