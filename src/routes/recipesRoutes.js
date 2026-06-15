@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
+
 import {
+  createRecipe,
+  searchRecipes,
   addFavoriteRecipe,
   removeFavoriteRecipe,
   getRecipeByIdController,
@@ -10,14 +13,44 @@ import {
 } from "../controllers/recipesController.js";
 
 import { authenticate } from "../middleware/authenticate.js";
+import { upload } from "../middleware/upload.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
 
 import {
   recipeIdParamSchema,
   recipeQuerySchema,
+  createRecipeSchema,
+  recipeSearchQuerySchema,
 } from "../validation/recipesValidation.js";
 
 const router = Router();
+
+router.post(
+  "/",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Create recipe'
+    #swagger.description = 'Creates a new recipe'
+
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  authenticate,
+  upload.single("thumb"),
+  createRecipe
+);
+
+router.get(
+  "/search",
+  /*
+    #swagger.tags = ['Recipes']
+    #swagger.summary = 'Search recipes'
+    #swagger.description = 'Search recipes by filters'
+  */
+  celebrate(recipeSearchQuerySchema),
+  searchRecipes
+);
 
 router.get(
   "/own",
