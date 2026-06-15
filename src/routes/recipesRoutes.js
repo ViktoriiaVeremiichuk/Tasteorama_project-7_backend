@@ -3,6 +3,7 @@ import { celebrate } from "celebrate";
 
 import {
   createRecipe,
+  searchRecipes,
   addFavoriteRecipe,
   removeFavoriteRecipe,
   getRecipeByIdController,
@@ -19,6 +20,7 @@ import {
   recipeIdParamSchema,
   recipeQuerySchema,
   createRecipeSchema,
+  recipeSearchQuerySchema,
 } from "../validation/recipesValidation.js";
 
 const router = Router();
@@ -30,22 +32,16 @@ router.post(
   createRecipe
 );
 
+router.get("/search", celebrate(recipeSearchQuerySchema), searchRecipes);
 router.get("/own", authenticate, celebrate(recipeQuerySchema), getOwnRecipes);
-
 router.get("/favorite", authenticate, getFavoriteRecipes);
 
 router.post(
+
   "/favorites/:recipeId",
   isValidRecipeId,
   authenticate,
   addFavoriteRecipe,
-);
-
-router.delete(
-  "/favorites/:recipeId",
-  authenticate,
-  celebrate(recipeIdParamSchema),
-  removeFavoriteRecipe,
 );
 
 router.delete(
