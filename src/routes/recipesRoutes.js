@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
+
 import {
+  createRecipe,
+  searchRecipes,
   addFavoriteRecipe,
   removeFavoriteRecipe,
   getRecipeByIdController,
@@ -10,14 +13,28 @@ import {
 } from "../controllers/recipesController.js";
 
 import { authenticate } from "../middleware/authenticate.js";
+import { upload } from "../middleware/upload.js";
 import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
 
 import {
   recipeIdParamSchema,
   recipeQuerySchema,
+  createRecipeSchema,
+  recipeSearchQuerySchema,
 } from "../validation/recipesValidation.js";
 
 const router = Router();
+
+router.post(
+  "/",
+  authenticate,
+  upload.single("thumb"),
+  celebrate(createRecipeSchema),
+  createRecipe
+);
+
+router.get("/search", celebrate(recipeSearchQuerySchema), searchRecipes);
+
 
 router.get(
   "/own",
@@ -50,7 +67,12 @@ router.get(
   getFavoriteRecipes
 );
 
+
+
+
+
 router.post(
+
   "/favorites/:recipeId",
   /*
     #swagger.tags = ['Recipes']

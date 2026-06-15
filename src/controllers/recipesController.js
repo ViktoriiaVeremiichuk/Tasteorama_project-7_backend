@@ -1,9 +1,128 @@
+import { Readable } from "stream";
+
 import mongoose from "mongoose";
 import createHttpError from "http-errors";
+
 import { User } from "../models/user.js";
 import { Recipe } from "../models/recipe.js";
+import { searchRecipesByFilters } from "../services/recipesServices.js";
 import "../models/ingredient.js";
 import "../models/category.js";
+import { createRecipeSchema } from "../validation/recipesValidation.js";
+
+import cloudinary from "../utils/cloudinary.js";
+
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "tasteorama-recipes",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+
+        resolve(result);
+      }
+    );
+
+    Readable.from(buffer).pipe(stream);
+  });
+};
+
+export const createRecipe = async (req, res, next) => {
+  try {
+    const {
+      title,
+      description,
+      category,
+      instructions,
+      time,
+      calories,
+      ingredients,
+    } = req.body;
+
+    const parsedIngredients =
+      typeof ingredients === "string"
+        ? JSON.parse(ingredients)
+        : ingredients;
+
+    const { error } = createRecipeSchema.validate({
+      title,
+      description,
+      category,
+      instructions,
+      time: Number(time),
+      calories: calories ? Number(calories) : 0,
+      ingredients: parsedIngredients,
+    });
+
+    if (error) {
+      return next(createHttpError(400, error.details[0].message));
+    }
+
+    let thumb = "";
+
+    if (req.file) {
+      const uploadedImage = await uploadToCloudinary(req.file.buffer);
+
+      thumb = uploadedImage.secure_url;
+    }
+
+    const recipe = await Recipe.create({
+      title,
+      description,
+      category,
+      instructions,
+      time: Number(time),
+      calories: calories ? Number(calories) : 0,
+
+      ingredients: parsedIngredients,
+
+      thumb,
+
+      owner: req.user._id,
+    });
+
+    res.status(201).json(recipe);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const searchRecipes = async (req, res, next) => {
+  try {
+    const {
+      title = "",
+      category = "",
+      ingredient = "",
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    if (Number.isNaN(pageNumber) || pageNumber < 1) {
+      throw createHttpError(400, "Page must be a positive number");
+    }
+
+    if (Number.isNaN(limitNumber) || limitNumber < 1) {
+      throw createHttpError(400, "Limit must be a positive number");
+    }
+
+    const result = await searchRecipesByFilters({
+      title,
+      category,
+      ingredient,
+      page: pageNumber,
+      limit: limitNumber,
+    });
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const addFavoriteRecipe = async (req, res, next) => {
   try {
@@ -81,10 +200,9 @@ export const getRecipeByIdController = async (req, res, next) => {
       data: recipe,
     });
   } catch (error) {
-    next(error);
-  }
+      next(error);
+      }
 };
-
 export const getOwnRecipes = async (req, res, next) => {
   try {
     const { page = 1, perPage = 12 } = req.query;
@@ -146,12 +264,11 @@ export const getFavoriteRecipes = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-
     const userWithFavorites = await User.findById(userId).populate("favorites");
 
-   if (!userWithFavorites) {
-  throw createHttpError(404, "User not found");
-}
+    if (!userWithFavorites) {
+      throw createHttpError(404, "User not found");
+    }
 
     return res.status(200).json(userWithFavorites.favorites);
   } catch (error) {
