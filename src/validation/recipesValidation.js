@@ -12,3 +12,13 @@ export const recipeQuerySchema = {
     perPage: Joi.number().integer().min(1).max(50).default(12),
   }),
 };
+
+export const recipeSearchQuerySchema = {
+  [Segments.QUERY]: Joi.object({
+    title: Joi.string().trim().allow("").optional(),
+    category: Joi.string().trim().allow("").optional(),
+    ingredient: Joi.string().trim().allow("").optional(),
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(50).default(12),
+  }),
+};

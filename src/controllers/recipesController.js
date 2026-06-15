@@ -2,8 +2,44 @@ import mongoose from "mongoose";
 import createHttpError from "http-errors";
 import { User } from "../models/user.js";
 import { Recipe } from "../models/recipe.js";
+import { searchRecipesByFilters } from "../services/recipesServices.js";
 import "../models/ingredient.js";
 import "../models/category.js";
+
+export const searchRecipes = async (req, res, next) => {
+  try {
+    const {
+      title = "",
+      category = "",
+      ingredient = "",
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    if (Number.isNaN(pageNumber) || pageNumber < 1) {
+      throw createHttpError(400, "Page must be a positive number");
+    }
+
+    if (Number.isNaN(limitNumber) || limitNumber < 1) {
+      throw createHttpError(400, "Limit must be a positive number");
+    }
+
+    const result = await searchRecipesByFilters({
+      title,
+      category,
+      ingredient,
+      page: pageNumber,
+      limit: limitNumber,
+    });
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const addFavoriteRecipe = async (req, res, next) => {
   try {
@@ -146,12 +182,11 @@ export const getFavoriteRecipes = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-
     const userWithFavorites = await User.findById(userId).populate("favorites");
 
-   if (!userWithFavorites) {
-  throw createHttpError(404, "User not found");
-}
+    if (!userWithFavorites) {
+      throw createHttpError(404, "User not found");
+    }
 
     return res.status(200).json(userWithFavorites.favorites);
   } catch (error) {
