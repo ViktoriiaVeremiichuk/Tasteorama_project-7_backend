@@ -14,12 +14,12 @@ export const recipeQuerySchema = {
 };
 
 export const createRecipeSchema = { [Segments.BODY]:Joi.object({
-    title: Joi.string().required(),
-    description: Joi.string().allow(""),
+    title: Joi.string().max(64).required(),
+    description: Joi.string().max(200).required(),
     category: Joi.string().required(),
-    instructions: Joi.string().required(),
-    time: Joi.number().required(),
-    calories: Joi.number().optional(),
+    instructions: Joi.string().max(2000).required(),
+    time: Joi.string().required(),
+    calories: Joi.number().integer().min(1).optional(),
   
     ingredients: Joi.array()
       .items(

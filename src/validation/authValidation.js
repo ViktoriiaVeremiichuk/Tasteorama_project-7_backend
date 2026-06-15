@@ -2,9 +2,9 @@ import { celebrate, Joi, Segments } from "celebrate";
 
 export const registerUserSchema = celebrate({
   [Segments.BODY]: Joi.object({
-    name: Joi.string().min(2).max(35).required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().min(8).required(),
+    name: Joi.string().min(2).max(16).required(),
+    email: Joi.string().email().max(128).required(),
+    password: Joi.string().min(8).max(128).pattern(/^\S+$/).required(),
   }),
 });
 
