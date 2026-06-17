@@ -17,17 +17,19 @@ export const recipeJoiSchema = Joi.object({
     title: Joi.string().max(64).required(),
     description: Joi.string().max(200).required(),
     category: Joi.string().required(),
-    instructions: Joi.string().max(2000).required(),
+    instructions: Joi.string().max(1200).required(),
     time: Joi.string().required(),
-    calories: Joi.number().integer().min(1).optional(),
+    calories: Joi.number().integer().min(1).max(10000).optional(),
   
     ingredients: Joi.array()
       .items(
         Joi.object({
           id: Joi.string().required(),
-          measure: Joi.string().required(),
+          measure: Joi.string().max(10).required(),
         })
       )
+      .min(2)
+      .max(16)
       .required(),
   });
 
