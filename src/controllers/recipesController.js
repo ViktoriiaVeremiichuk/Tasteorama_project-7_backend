@@ -8,7 +8,7 @@ import { Recipe } from "../models/recipe.js";
 import { searchRecipesByFilters } from "../services/recipesServices.js";
 import "../models/ingredient.js";
 import "../models/category.js";
-import { createRecipeSchema } from "../validation/recipesValidation.js";
+import { recipeJoiSchema } from "../validation/recipesValidation.js";
 
 import cloudinary from "../utils/cloudinary.js";
 
@@ -46,12 +46,12 @@ export const createRecipe = async (req, res, next) => {
         ? JSON.parse(ingredients)
         : ingredients;
 
-    const { error } = createRecipeSchema.validate({
+    const { error } = recipeJoiSchema.validate({
       title,
       description,
       category,
       instructions,
-      time: Number(time),
+      time,
       calories: calories ? Number(calories) : 0,
       ingredients: parsedIngredients,
     });
@@ -73,7 +73,7 @@ export const createRecipe = async (req, res, next) => {
       description,
       category,
       instructions,
-      time: Number(time),
+      time,
       calories: calories ? Number(calories) : 0,
 
       ingredients: parsedIngredients,

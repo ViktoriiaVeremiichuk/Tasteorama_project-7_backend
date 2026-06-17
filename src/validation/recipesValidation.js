@@ -13,7 +13,7 @@ export const recipeQuerySchema = {
   }),
 };
 
-export const createRecipeSchema = { [Segments.BODY]:Joi.object({
+export const recipeJoiSchema = Joi.object({
     title: Joi.string().max(64).required(),
     description: Joi.string().max(200).required(),
     category: Joi.string().required(),
@@ -29,7 +29,11 @@ export const createRecipeSchema = { [Segments.BODY]:Joi.object({
         })
       )
       .required(),
-  }),};
+  });
+
+export const createRecipeSchema = {
+  [Segments.BODY]: recipeJoiSchema,
+};
 
   
 export const recipeSearchQuerySchema = {
