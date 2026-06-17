@@ -23,7 +23,6 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:3001",
   "http://localhost:3000",
-  "https://tasteorama-project-7-backend.onrender.com",
 ].filter(Boolean);
 
 app.use(logger);
