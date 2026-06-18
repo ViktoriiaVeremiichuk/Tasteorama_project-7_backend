@@ -276,12 +276,13 @@ export const getFavoriteRecipes = async (req, res, next) => {
         sort: { createdAt: -1 } 
       }
     });
-    if (!userWithFavorites) {
+
+    if (!user) {
       throw createHttpError(404, "User not found");
     }
 
-    const fullUser = await User.findById(userId).select("favorites");
-    const totalRecipes = fullUser && fullUser.favorites ? fullUser.favorites.length : 0;
+  
+       const totalRecipes = user.favorites ? user.favorites.length : 0;
     const totalPages = Math.ceil(totalRecipes / limit);
 
 
@@ -289,6 +290,7 @@ export const getFavoriteRecipes = async (req, res, next) => {
       recipes: userWithFavorites.favorites || [],
       page,
       limit,
+      totalItems: totalRecipes,
       totalPages,
     });
   } catch (error) {
