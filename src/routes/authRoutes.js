@@ -10,6 +10,7 @@ import {
   logout,
   refreshUserSession,
 } from "../controllers/authController.js";
+import { validateRefreshToken } from "../middleware/validateRefreshToken.js";
 
 const router = Router();
 
@@ -46,6 +47,7 @@ router.post(
       "bearerAuth": []
     }]
   */
+  validateRefreshToken,
   refreshUserSession
 );
 
