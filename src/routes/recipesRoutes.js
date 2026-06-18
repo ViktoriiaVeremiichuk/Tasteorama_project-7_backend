@@ -70,7 +70,7 @@ router.get(
 );
 
 router.get(
-  "/favorite",
+  "/favorites",
   /*
     #swagger.tags = ['Recipes']
     #swagger.summary = 'Get favorite recipes'
