@@ -1,0 +1,1 @@
+export const DEFAULT_RECIPE_THUMB = process.env.DEFAULT_RECIPE_THUMB;
