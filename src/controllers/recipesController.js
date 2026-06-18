@@ -9,6 +9,7 @@ import { searchRecipesByFilters } from "../services/recipesServices.js";
 import "../models/ingredient.js";
 import "../models/category.js";
 import { recipeJoiSchema } from "../validation/recipesValidation.js";
+import { DEFAULT_RECIPE_THUMB } from "../constants/images.js";
 
 import cloudinary from "../utils/cloudinary.js";
 
@@ -60,7 +61,11 @@ export const createRecipe = async (req, res, next) => {
       return next(createHttpError(400, error.details[0].message));
     }
 
-    let thumb = "";
+    if (!DEFAULT_RECIPE_THUMB) {
+      return next(createHttpError(500, "Default recipe thumb is not configured"));
+    }
+
+    let thumb = DEFAULT_RECIPE_THUMB;
 
     if (req.file) {
       const uploadedImage = await uploadToCloudinary(req.file.buffer);
