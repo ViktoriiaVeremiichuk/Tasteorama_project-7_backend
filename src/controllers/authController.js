@@ -64,18 +64,8 @@ export const logout = async (req, res, next) => {
 //NOTE - /auth/refresh
 export const refreshUserSession = async (req, res, next) => {
   try {
-    const { sessionId, refreshToken } = req.cookies;
-
-    const session = await Session.findOne({ _id: sessionId, refreshToken });
-    if (!session) throw createHttpError(401, "Session not found");
-
-    if (new Date() > session.refreshTokenValidUntil) {
-      await Session.findByIdAndDelete(sessionId);
-      res.clearCookie("sessionId");
-      res.clearCookie("accessToken");
-      res.clearCookie("refreshToken");
-      throw createHttpError(401, "Session token expired");
-    }
+    const { sessionId } = req.cookies;
+    const session = req.session;
 
     await Session.findByIdAndDelete(sessionId);
     const newSession = await createSession(session.userId);
