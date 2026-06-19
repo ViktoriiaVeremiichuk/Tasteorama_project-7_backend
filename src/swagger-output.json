@@ -280,7 +280,7 @@
         ]
       }
     },
-    "/api/recipes/favorite": {
+    "/api/recipes/favorites": {
       "get": {
         "tags": [
           "Recipes"

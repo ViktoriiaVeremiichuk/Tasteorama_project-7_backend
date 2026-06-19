@@ -14,7 +14,7 @@ import {
 
 import { authenticate } from "../middleware/authenticate.js";
 import { upload } from "../middleware/upload.js";
-import { isValidRecipeId } from "../middleware/isValidRecipeId.js";
+import { isValidId } from "../middleware/isValidId.js";
 
 import {
   recipeIdParamSchema,
@@ -70,7 +70,7 @@ router.get(
 );
 
 router.get(
-  "/favorite",
+  "/favorites",
   /*
     #swagger.tags = ['Recipes']
     #swagger.summary = 'Get favorite recipes'
@@ -95,7 +95,7 @@ router.post(
       "bearerAuth": []
     }]
   */
-  isValidRecipeId,
+  isValidId("recipeId"),
   authenticate,
   addFavoriteRecipe
 );
@@ -127,7 +127,7 @@ router.delete(
       "bearerAuth": []
     }]
   */
-  isValidRecipeId,
+  isValidId("recipeId"),
   authenticate,
   deleteOwnRecipe
 );
@@ -139,7 +139,7 @@ router.get(
     #swagger.summary = 'Get recipe by id'
     #swagger.description = 'Returns recipe details by id'
   */
-  isValidRecipeId,
+  isValidId("recipeId"),
   getRecipeByIdController
 );
 
