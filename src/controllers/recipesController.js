@@ -282,7 +282,9 @@ export const getFavoriteRecipes = async (req, res, next) => {
       }
     });
 
-   
+   if (!user) {
+      throw createHttpError(404, "User not found");
+    }
   
        const totalRecipes = user.favorites ? user.favorites.length : 0;
        const totalPages = Math.ceil(totalRecipes / limit);
