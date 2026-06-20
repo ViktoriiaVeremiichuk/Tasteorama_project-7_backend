@@ -273,25 +273,25 @@ export const getFavoriteRecipes = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
-     const userWithFavorites = await User.findById(userId).populate({
-      path: "favorites",
-      options: { 
-        skip: skip, 
-        limit: limit,
-        sort: { createdAt: -1 } 
-      }
-    });
+    const user = await User.findById(userId).select("favorites");
 
     if (!user) {
       throw createHttpError(404, "User not found");
     }
 
-  
-       const totalRecipes = user.favorites ? user.favorites.length : 0;
+    const totalRecipes = user.favorites?.length ?? 0;
     const totalPages = Math.ceil(totalRecipes / limit);
 
+    const userWithFavorites = await User.findById(userId).populate({
+      path: "favorites",
+      options: {
+        skip,
+        limit,
+        sort: { createdAt: -1 },
+      },
+    });
 
-   return res.status(200).json({
+    return res.status(200).json({
       recipes: userWithFavorites.favorites || [],
       page,
       limit,
