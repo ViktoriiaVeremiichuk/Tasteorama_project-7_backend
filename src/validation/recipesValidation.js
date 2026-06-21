@@ -13,6 +13,17 @@ export const recipeQuerySchema = {
   }),
 };
 
+const ingredientItemSchema = Joi.object({
+  id: Joi.string().required(),
+  measure: Joi.string().max(10).required(),
+});
+
+const ingredientsArraySchema = Joi.array()
+  .items(ingredientItemSchema)
+  .min(2)
+  .max(16)
+  .required();
+
 export const recipeJoiSchema = Joi.object({
     title: Joi.string().max(64).required(),
     description: Joi.string().max(200).required(),
@@ -20,17 +31,27 @@ export const recipeJoiSchema = Joi.object({
     instructions: Joi.string().max(1200).required(),
     time: Joi.string().required(),
     calories: Joi.number().integer().min(1).max(10000).optional(),
-  
-    ingredients: Joi.array()
-      .items(
-        Joi.object({
-          id: Joi.string().required(),
-          measure: Joi.string().max(10).required(),
-        })
-      )
-      .min(2)
-      .max(16)
-      .required(),
+
+    ingredients: Joi.custom((value, helpers) => {
+      let parsed = value;
+
+      if (typeof value === "string") {
+        try {
+          parsed = JSON.parse(value);
+        } catch {
+          return helpers.error("any.invalid");
+        }
+      }
+
+      const { error, value: validated } =
+        ingredientsArraySchema.validate(parsed);
+
+      if (error) {
+        return helpers.message(error.details[0].message);
+      }
+
+      return validated;
+    }).required(),
   });
 
 export const createRecipeSchema = {
