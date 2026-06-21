@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Recipe } from "../models/recipe.js";
+import { Ingredient } from "../models/ingredient.js";
 
 export const searchRecipesByFilters = async ({
   title,
@@ -8,16 +9,32 @@ export const searchRecipesByFilters = async ({
   page,
   limit,
 }) => {
-  const filter = {};
-
+  const conditions = [];
   const searchTitle = title.trim();
 
   if (searchTitle) {
-    filter.title = { $regex: searchTitle, $options: "i" };
+    const matchingIngredients = await Ingredient.find({
+      name: { $regex: searchTitle, $options: "i" },
+    }).select("_id");
+
+    const textSearchConditions = [
+      { title: { $regex: searchTitle, $options: "i" } },
+      { category: { $regex: searchTitle, $options: "i" } },
+    ];
+
+    if (matchingIngredients.length) {
+      textSearchConditions.push({
+        "ingredients.id": {
+          $in: matchingIngredients.map((item) => item._id),
+        },
+      });
+    }
+
+    conditions.push({ $or: textSearchConditions });
   }
 
   if (category) {
-    filter.category = category;
+    conditions.push({ category });
   }
 
   if (ingredient) {
@@ -25,8 +42,12 @@ export const searchRecipesByFilters = async ({
       return { recipes: [], total: 0, page, limit, totalPages: 0 };
     }
 
-    filter["ingredients.id"] = new mongoose.Types.ObjectId(ingredient);
+    conditions.push({
+      "ingredients.id": new mongoose.Types.ObjectId(ingredient),
+    });
   }
+
+  const filter = conditions.length ? { $and: conditions } : {};
 
   const skip = (page - 1) * limit;
 
