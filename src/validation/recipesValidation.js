@@ -29,7 +29,7 @@ export const recipeJoiSchema = Joi.object({
     description: Joi.string().max(200).required(),
     category: Joi.string().required(),
     instructions: Joi.string().max(1200).required(),
-    time: Joi.string().required(),
+    time: Joi.number().min(1).max(360).required(),
     calories: Joi.number().integer().min(1).max(10000).optional(),
 
     ingredients: Joi.custom((value, helpers) => {
